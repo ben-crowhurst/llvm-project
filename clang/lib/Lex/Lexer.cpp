@@ -3932,7 +3932,15 @@ LexStart:
     Kind = tok::question;
     break;
   case '[':
-    Kind = tok::l_square;
+    Char = getCharAndSize(CurPtr, SizeTmp);
+    if (Char == '^' && LangOpts.CPlusPlus &&
+      getCharAndSize(CurPtr+SizeTmp, SizeTmp2) == ']') {  // [^]
+      CurPtr = ConsumeChar(ConsumeChar(CurPtr, SizeTmp, Result),
+                           SizeTmp2, Result);
+      Kind = tok::manifoldoneof;
+    } else {
+      Kind = tok::l_square;
+    }
     break;
   case ']':
     Kind = tok::r_square;
