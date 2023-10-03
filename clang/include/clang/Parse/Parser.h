@@ -1879,6 +1879,9 @@ private:
 
   ExprResult ParseFoldExpression(ExprResult LHS, BalancedDelimiterTracker &T);
 
+  // C++ Proposal: Manifold Operators
+  ExprResult ParseManifoldExpression(ExprResult LHS, const Token &OpToken);
+
   //===--------------------------------------------------------------------===//
   // C++ Expressions
   ExprResult tryParseCXXIdExpression(CXXScopeSpec &SS, bool isAddressOfOperand,
