@@ -4118,5 +4118,74 @@ ExprResult Parser::ParseBuiltinBitCast() {
 }
 
 ExprResult Parser::ParseManifoldExpression(ExprResult LHS, const Token &OpToken) {
-  return ExprError();
+  assert(getLangOpts().CPlusPlus11
+         && OpToken.is(tok::manifoldoneof)
+         && "Not at the start of a possible manifold expression.");
+
+  SmallVector<ExprResult, 2>  exprResults;
+  ExprResult exprResult = ParseCastExpression(AnyCastExpr);
+  if (exprResult.isInvalid())
+    return ExprError(Diag(Tok, diag::err_expected_expression));
+
+  if (Tok.isNot(tok::comma)) {
+    if (Tok.is(tok::r_paren))
+      return ExprError(Diag(Tok, diag::err_expected)
+            << tok::comma << FixItHint::CreateInsertion(Tok.getLocation(), ","));
+    else
+      return ExprError(Diag(Tok, diag::err_expected)
+            << tok::r_paren << FixItHint::CreateInsertion(Tok.getLocation(), ")"));
+  }
+
+  ConsumeToken();
+  exprResults.push_back(exprResult);
+
+  while (!Tok.isOneOf(tok::r_paren, tok::eof)) {
+    exprResult = ParseCastExpression(AnyCastExpr);
+    if (exprResult.isInvalid())
+      return ExprError();
+
+    exprResults.push_back(exprResult);
+
+    if (Tok.is(tok::comma))
+      ConsumeToken();
+  }
+
+  if (Tok.isNot(tok::r_paren))
+    return ExprError(Diag(Tok, diag::err_expected)
+          << tok::r_paren << FixItHint::CreateInsertion(Tok.getLocation(), ")"));
+
+  ExprResult BinOp, CondExpr, CachedExpr;
+  for (size_t iteration = 0; iteration != exprResults.size(); iteration++) {
+    for (size_t index = 0; index != exprResults.size(); index++) {
+      exprResult = exprResults[index];
+
+      BinOp = Actions.ActOnBinOp(getCurScope(), OpToken.getLocation(),
+        (index == iteration) ? tok::equalequal : tok::exclaimequal, LHS.get(), exprResult.get());
+
+      if (BinOp.isInvalid())
+        return ExprError();
+
+      if (index > 0) {
+        BinOp = Actions.ActOnBinOp(getCurScope(), OpToken.getLocation(),
+                                tok::ampamp, CachedExpr.get(), BinOp.get());
+        if (BinOp.isInvalid())
+          return ExprError();
+      }
+
+      CachedExpr = BinOp;
+    }
+
+    BinOp = Actions.ActOnParenExpr(OpToken.getLocation(), OpToken.getLocation(), CachedExpr.get());
+
+    if (iteration > 0) {
+      BinOp = Actions.ActOnBinOp(getCurScope(), OpToken.getLocation(),
+                              tok::pipepipe, CondExpr.get(), BinOp.get());
+      if (BinOp.isInvalid())
+        return ExprError();
+    }
+
+    CondExpr = BinOp;
+  }
+
+  return CondExpr;
 }
