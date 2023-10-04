@@ -3849,7 +3849,3 @@ ExprResult Parser::ParseAvailabilityCheckExpr(SourceLocation BeginLoc) {
   return Actions.ActOnObjCAvailabilityCheckExpr(AvailSpecs, BeginLoc,
                                                 Parens.getCloseLocation());
 }
-
-ExprResult Parser::ParseManifoldExpression(ExprResult LHS, const Token &OpToken) {
-  return ExprError();
-}

@@ -4116,3 +4116,7 @@ ExprResult Parser::ParseBuiltinBitCast() {
   return Actions.ActOnBuiltinBitCastExpr(KWLoc, DeclaratorInfo, Operand,
                                          T.getCloseLocation());
 }
+
+ExprResult Parser::ParseManifoldExpression(ExprResult LHS, const Token &OpToken) {
+  return ExprError();
+}
