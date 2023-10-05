@@ -5949,6 +5949,13 @@ defm check_new : BoolOption<"f", "check-new",
   PosFlag<SetTrue, [], [ClangOption], "Do not assume C++ operator new may not return NULL">,
   NegFlag<SetFalse>, BothFlags<[], [ClangOption, CC1Option]>>;
 
+// C++ Manifold expressions
+defm manifold_expressions : BoolFOption<"manifold-expressions",
+  LangOpts<"ManifoldExpressions">, DefaultFalse,
+  PosFlag<SetTrue, [], [ClangOption, CC1Option],
+          "Enable support for the C++ Manifold expressions">,
+  NegFlag<SetFalse>>;
+
 defm caller_saves : BooleanFFlag<"caller-saves">, Group<clang_ignored_gcc_optimization_f_Group>;
 defm reorder_blocks : BooleanFFlag<"reorder-blocks">, Group<clang_ignored_gcc_optimization_f_Group>;
 defm branch_count_reg : BooleanFFlag<"branch-count-reg">, Group<clang_ignored_gcc_optimization_f_Group>;

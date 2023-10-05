@@ -474,6 +474,8 @@ LANGOPT(IncrementalExtensions, 1, 0, " True if we want to process statements"
 
 BENIGN_LANGOPT(CheckNew, 1, 0, "Do not assume C++ operator new may not return NULL")
 
+BENIGN_LANGOPT(ManifoldExpressions, 1, 0, "Enable support for the C++ Manifold expressions")
+
 #undef LANGOPT
 #undef COMPATIBLE_LANGOPT
 #undef BENIGN_LANGOPT

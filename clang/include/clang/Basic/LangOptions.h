@@ -501,6 +501,10 @@ public:
   // received as a result of a standard operator new (-fcheck-new)
   bool CheckNew = false;
 
+  // Indicates whether we should enable the proposed manifold
+  // expressions  (-fmanifold-expressions)
+  bool ManifoldExpressions = false;
+
   LangOptions();
 
   /// Set language defaults for the given input language and

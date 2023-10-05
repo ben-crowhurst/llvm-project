@@ -3933,8 +3933,10 @@ LexStart:
     break;
   case '[':
     Char = getCharAndSize(CurPtr, SizeTmp);
-    if (Char == '^' && LangOpts.CPlusPlus &&
-      getCharAndSize(CurPtr+SizeTmp, SizeTmp2) == ']') {  // [^]
+    if (Char == '^' &&
+        LangOpts.CPlusPlus &&
+        LangOpts.ManifoldExpressions &&
+        getCharAndSize(CurPtr+SizeTmp, SizeTmp2) == ']') {  // [^]
       CurPtr = ConsumeChar(ConsumeChar(CurPtr, SizeTmp, Result),
                            SizeTmp2, Result);
       Kind = tok::manifoldoneof;

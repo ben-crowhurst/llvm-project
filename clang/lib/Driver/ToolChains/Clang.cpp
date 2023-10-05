@@ -6281,6 +6281,9 @@ void Clang::ConstructJob(Compilation &C, const JobAction &JA,
   Args.addOptInFlag(CmdArgs, options::OPT_fcheck_new,
                     options::OPT_fno_check_new);
 
+  Args.addOptInFlag(CmdArgs, options::OPT_fmanifold_expressions,
+                    options::OPT_fno_manifold_expressions);
+
   if (Arg *A = Args.getLastArg(options::OPT_fzero_call_used_regs_EQ)) {
     // FIXME: There's no reason for this to be restricted to X86. The backend
     // code needs to be changed to include the appropriate function calls

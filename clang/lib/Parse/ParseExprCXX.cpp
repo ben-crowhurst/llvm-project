@@ -4118,7 +4118,7 @@ ExprResult Parser::ParseBuiltinBitCast() {
 }
 
 ExprResult Parser::ParseManifoldExpression(ExprResult LHS, const Token &OpToken) {
-  assert(getLangOpts().CPlusPlus11
+  assert(getLangOpts().CPlusPlus11 && getLangOpts().ManifoldExpressions
          && OpToken.is(tok::manifoldoneof)
          && "Not at the start of a possible manifold expression.");
 
