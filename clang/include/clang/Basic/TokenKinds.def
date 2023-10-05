@@ -379,6 +379,7 @@ CXX_KEYWORD_OPERATOR(or      , pipepipe)
 CXX_KEYWORD_OPERATOR(or_eq   , pipeequal)
 CXX_KEYWORD_OPERATOR(xor     , caret)
 CXX_KEYWORD_OPERATOR(xor_eq  , caretequal)
+CXX_KEYWORD_OPERATOR(one_of  , manifoldoneof)
 
 // C99 Keywords.
 C99_KEYWORD(restrict                    , 0)
