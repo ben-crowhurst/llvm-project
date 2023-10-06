@@ -4189,6 +4189,35 @@ ExprResult Parser::ParseAnyOfManifoldExpression(ExprResult LHS,
   return CachedExpr;
 }
 
+ExprResult Parser::ParseAllOfManifoldExpression(ExprResult LHS,
+                                                const Token &OpToken,
+                                                SmallVector<ExprResult, 2> &exprResults) {
+  assert(getLangOpts().CPlusPlus11 && getLangOpts().ManifoldExpressions
+         && OpToken.is(tok::manifoldallof)
+         && "Not at the start of a all-of manifold expression.");
+
+  ExprResult BinOp, CachedExpr, exprResult;
+  for (size_t index = 0; index != exprResults.size(); index++) {
+    exprResult = exprResults[index];
+
+    BinOp = Actions.ActOnBinOp(getCurScope(), OpToken.getLocation(),
+                               tok::equalequal, LHS.get(), exprResult.get());
+    if (BinOp.isInvalid())
+      return ExprError();
+
+    if (index > 0) {
+      BinOp = Actions.ActOnBinOp(getCurScope(), OpToken.getLocation(),
+                              tok::ampamp, CachedExpr.get(), BinOp.get());
+      if (BinOp.isInvalid())
+        return ExprError();
+    }
+
+    CachedExpr = BinOp;
+  }
+
+  return CachedExpr;
+}
+
 ExprResult Parser::ParseManifoldExpression(ExprResult LHS, const Token &OpToken) {
   assert(getLangOpts().CPlusPlus11 && getLangOpts().ManifoldExpressions
          && OpToken.isOneOf(tok::manifoldoneof, tok::manifoldanyof)
@@ -4230,6 +4259,8 @@ ExprResult Parser::ParseManifoldExpression(ExprResult LHS, const Token &OpToken)
     return ParseOneOfManifoldExpression(LHS, OpToken, exprResults);
   else if (OpToken.is(tok::manifoldanyof))
     return ParseAnyOfManifoldExpression(LHS, OpToken, exprResults);
+  else if (OpToken.is(tok::manifoldallof))
+    return ParseAllOfManifoldExpression(LHS, OpToken, exprResults);
   else
     return ExprError();
 }

@@ -2,7 +2,7 @@ int main(void)
 {
     int var = 1;
 
-    if ((var == 1 && var != 2) || (var != 1 && var == 2)) {
+    if (var == 1 && var == 2) {
         return 0;
     }
 

@@ -1884,6 +1884,8 @@ private:
                                           const Token &OpToken, SmallVector<ExprResult, 2> &);
   ExprResult ParseAnyOfManifoldExpression(ExprResult LHS,
                                           const Token &OpToken, SmallVector<ExprResult, 2> &);
+  ExprResult ParseAllOfManifoldExpression(ExprResult LHS,
+                                          const Token &OpToken, SmallVector<ExprResult, 2> &);
   ExprResult ParseManifoldExpression(ExprResult LHS, const Token &OpToken);
 
   //===--------------------------------------------------------------------===//
