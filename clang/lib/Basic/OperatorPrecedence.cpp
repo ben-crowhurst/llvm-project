@@ -51,6 +51,7 @@ prec::Level getBinOpPrecedence(tok::TokenKind Kind, bool GreaterThanIsOperator,
   case tok::caretequal:
   case tok::pipeequal:            return prec::Assignment;
   case tok::manifoldoneof:
+  case tok::manifoldanyof:
   case tok::question:             return prec::Conditional;
   case tok::pipepipe:             return prec::LogicalOr;
   case tok::caretcaret:

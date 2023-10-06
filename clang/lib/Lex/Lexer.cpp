@@ -3932,16 +3932,24 @@ LexStart:
     Kind = tok::question;
     break;
   case '[':
+    Kind = tok::l_square;
     Char = getCharAndSize(CurPtr, SizeTmp);
-    if (Char == '^' &&
-        LangOpts.CPlusPlus &&
+    if (LangOpts.CPlusPlus &&
         LangOpts.ManifoldExpressions &&
-        getCharAndSize(CurPtr+SizeTmp, SizeTmp2) == ']') {  // [^]
-      CurPtr = ConsumeChar(ConsumeChar(CurPtr, SizeTmp, Result),
-                           SizeTmp2, Result);
-      Kind = tok::manifoldoneof;
-    } else {
-      Kind = tok::l_square;
+        getCharAndSize(CurPtr+SizeTmp, SizeTmp2) == ']')
+    {
+      switch (Char) {
+        case '^': // [^]
+          Kind = tok::manifoldoneof;
+          break;
+        case '|': // [|]
+          Kind = tok::manifoldanyof;
+          break;
+      }
+
+      if (Kind != tok::l_square)
+        CurPtr = ConsumeChar(ConsumeChar(CurPtr, SizeTmp, Result),
+                             SizeTmp2, Result);
     }
     break;
   case ']':

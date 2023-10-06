@@ -1880,6 +1880,10 @@ private:
   ExprResult ParseFoldExpression(ExprResult LHS, BalancedDelimiterTracker &T);
 
   // C++ Proposal: Manifold Operators
+  ExprResult ParseOneOfManifoldExpression(ExprResult LHS,
+                                          const Token &OpToken, SmallVector<ExprResult, 2> &);
+  ExprResult ParseAnyOfManifoldExpression(ExprResult LHS,
+                                          const Token &OpToken, SmallVector<ExprResult, 2> &);
   ExprResult ParseManifoldExpression(ExprResult LHS, const Token &OpToken);
 
   //===--------------------------------------------------------------------===//

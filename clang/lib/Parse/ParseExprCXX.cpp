@@ -4117,9 +4117,81 @@ ExprResult Parser::ParseBuiltinBitCast() {
                                          T.getCloseLocation());
 }
 
-ExprResult Parser::ParseManifoldExpression(ExprResult LHS, const Token &OpToken) {
+ExprResult Parser::ParseOneOfManifoldExpression(ExprResult LHS,
+                                                const Token &OpToken,
+                                                SmallVector<ExprResult, 2> &exprResults) {
   assert(getLangOpts().CPlusPlus11 && getLangOpts().ManifoldExpressions
          && OpToken.is(tok::manifoldoneof)
+         && "Not at the start of a one-of manifold expression.");
+
+  ExprResult BinOp, CondExpr, CachedExpr, exprResult;
+  for (size_t iteration = 0; iteration != exprResults.size(); iteration++) {
+    for (size_t index = 0; index != exprResults.size(); index++) {
+      exprResult = exprResults[index];
+
+      BinOp = Actions.ActOnBinOp(getCurScope(), OpToken.getLocation(),
+        (index == iteration) ? tok::equalequal : tok::exclaimequal, LHS.get(), exprResult.get());
+
+      if (BinOp.isInvalid())
+        return ExprError();
+
+      if (index > 0) {
+        BinOp = Actions.ActOnBinOp(getCurScope(), OpToken.getLocation(),
+                                tok::ampamp, CachedExpr.get(), BinOp.get());
+        if (BinOp.isInvalid())
+          return ExprError();
+      }
+
+      CachedExpr = BinOp;
+    }
+
+    BinOp = Actions.ActOnParenExpr(OpToken.getLocation(), OpToken.getLocation(), CachedExpr.get());
+
+    if (iteration > 0) {
+      BinOp = Actions.ActOnBinOp(getCurScope(), OpToken.getLocation(),
+                              tok::pipepipe, CondExpr.get(), BinOp.get());
+      if (BinOp.isInvalid())
+        return ExprError();
+    }
+
+    CondExpr = BinOp;
+  }
+
+  return CondExpr;
+}
+
+ExprResult Parser::ParseAnyOfManifoldExpression(ExprResult LHS,
+                                                const Token &OpToken,
+                                                SmallVector<ExprResult, 2> &exprResults) {
+  assert(getLangOpts().CPlusPlus11 && getLangOpts().ManifoldExpressions
+         && OpToken.is(tok::manifoldanyof)
+         && "Not at the start of a any-of manifold expression.");
+
+  ExprResult BinOp, CachedExpr, exprResult;
+  for (size_t index = 0; index != exprResults.size(); index++) {
+    exprResult = exprResults[index];
+
+    BinOp = Actions.ActOnBinOp(getCurScope(), OpToken.getLocation(),
+                               tok::equalequal, LHS.get(), exprResult.get());
+    if (BinOp.isInvalid())
+      return ExprError();
+
+    if (index > 0) {
+      BinOp = Actions.ActOnBinOp(getCurScope(), OpToken.getLocation(),
+                              tok::pipepipe, CachedExpr.get(), BinOp.get());
+      if (BinOp.isInvalid())
+        return ExprError();
+    }
+
+    CachedExpr = BinOp;
+  }
+
+  return CachedExpr;
+}
+
+ExprResult Parser::ParseManifoldExpression(ExprResult LHS, const Token &OpToken) {
+  assert(getLangOpts().CPlusPlus11 && getLangOpts().ManifoldExpressions
+         && OpToken.isOneOf(tok::manifoldoneof, tok::manifoldanyof)
          && "Not at the start of a possible manifold expression.");
 
   SmallVector<ExprResult, 2>  exprResults;
@@ -4154,38 +4226,10 @@ ExprResult Parser::ParseManifoldExpression(ExprResult LHS, const Token &OpToken)
     return ExprError(Diag(Tok, diag::err_expected)
           << tok::r_paren << FixItHint::CreateInsertion(Tok.getLocation(), ")"));
 
-  ExprResult BinOp, CondExpr, CachedExpr;
-  for (size_t iteration = 0; iteration != exprResults.size(); iteration++) {
-    for (size_t index = 0; index != exprResults.size(); index++) {
-      exprResult = exprResults[index];
-
-      BinOp = Actions.ActOnBinOp(getCurScope(), OpToken.getLocation(),
-        (index == iteration) ? tok::equalequal : tok::exclaimequal, LHS.get(), exprResult.get());
-
-      if (BinOp.isInvalid())
-        return ExprError();
-
-      if (index > 0) {
-        BinOp = Actions.ActOnBinOp(getCurScope(), OpToken.getLocation(),
-                                tok::ampamp, CachedExpr.get(), BinOp.get());
-        if (BinOp.isInvalid())
-          return ExprError();
-      }
-
-      CachedExpr = BinOp;
-    }
-
-    BinOp = Actions.ActOnParenExpr(OpToken.getLocation(), OpToken.getLocation(), CachedExpr.get());
-
-    if (iteration > 0) {
-      BinOp = Actions.ActOnBinOp(getCurScope(), OpToken.getLocation(),
-                              tok::pipepipe, CondExpr.get(), BinOp.get());
-      if (BinOp.isInvalid())
-        return ExprError();
-    }
-
-    CondExpr = BinOp;
-  }
-
-  return CondExpr;
+  if (OpToken.is(tok::manifoldoneof))
+    return ParseOneOfManifoldExpression(LHS, OpToken, exprResults);
+  else if (OpToken.is(tok::manifoldanyof))
+    return ParseAnyOfManifoldExpression(LHS, OpToken, exprResults);
+  else
+    return ExprError();
 }

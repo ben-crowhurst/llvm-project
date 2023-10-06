@@ -110,6 +110,7 @@ using namespace clang;
 ///         logical-OR-expression '?' expression ':' conditional-expression
 /// [GNU]   logical-OR-expression '?' ':' conditional-expression
 ///         logical-OR-expression '[^]' relational-expression ',' ...[opt]
+///         logical-OR-expression '[|]' relational-expression ',' ...[opt]
 /// [C++] the third operand is an assignment-expression
 ///
 ///       assignment-expression: [C99 6.5.16]
@@ -464,7 +465,8 @@ Parser::ParseRHSOfBinaryExpression(ExprResult LHS, prec::Level MinPrec) {
 
     // Special case handling for the ternary operator.
     ExprResult TernaryMiddle(true);
-    if (NextTokPrec == prec::Conditional && (OpToken.isNot(tok::manifoldoneof))) {
+    if (NextTokPrec == prec::Conditional &&
+        !OpToken.isOneOf(tok::manifoldoneof, tok::manifoldanyof)) {
       if (getLangOpts().CPlusPlus11 && Tok.is(tok::l_brace)) {
         // Parse a braced-init-list here for error recovery purposes.
         SourceLocation BraceLoc = Tok.getLocation();
@@ -544,8 +546,9 @@ Parser::ParseRHSOfBinaryExpression(ExprResult LHS, prec::Level MinPrec) {
     if (getLangOpts().CPlusPlus11 && Tok.is(tok::l_brace)) {
       RHS = ParseBraceInitializer();
       RHSIsInitList = true;
-    } else if (getLangOpts().CPlusPlus && getLangOpts().ManifoldExpressions
-                                       && OpToken.is(tok::manifoldoneof)) {
+    } else if (getLangOpts().CPlusPlus &&
+               getLangOpts().ManifoldExpressions &&
+               OpToken.isOneOf(tok::manifoldoneof, tok::manifoldanyof)) {
       return ParseManifoldExpression(LHS, OpToken);
     } else if (getLangOpts().CPlusPlus && NextTokPrec <= prec::Conditional)
       RHS = ParseAssignmentExpression();
