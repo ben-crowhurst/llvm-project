@@ -244,6 +244,7 @@ PUNCTUATOR(coloncolon,          "::")
 PUNCTUATOR(manifoldoneof,       "[^]")
 PUNCTUATOR(manifoldanyof,       "[|]")
 PUNCTUATOR(manifoldallof,       "[&]")
+PUNCTUATOR(manifoldnoneof,      "[!]")
 
 // Objective C support.
 PUNCTUATOR(at,                  "@")
@@ -384,6 +385,7 @@ CXX_KEYWORD_OPERATOR(xor_eq  , caretequal)
 CXX_KEYWORD_OPERATOR(one_of  , manifoldoneof)
 CXX_KEYWORD_OPERATOR(any_of  , manifoldanyof)
 CXX_KEYWORD_OPERATOR(all_of  , manifoldallof)
+CXX_KEYWORD_OPERATOR(none_of , manifoldnoneof)
 
 // C99 Keywords.
 C99_KEYWORD(restrict                    , 0)

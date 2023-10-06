@@ -3948,6 +3948,9 @@ LexStart:
         case '&': // [&]
           Kind = tok::manifoldallof;
           break;
+        case '!': // [!]
+          Kind = tok::manifoldnoneof;
+          break;
       }
 
       if (Kind != tok::l_square)

@@ -58,7 +58,7 @@ void test3() {
   if (1 [&] 1,2,3)
   ;
 
-  if (1 any_of 1,2,3)
+  if (1 all_of 1,2,3)
   ;
 
   if (1 [&] 1) // expected-error {{expected ','}}
@@ -68,6 +68,28 @@ void test3() {
   ;            // expected-error {{expected expression}}
 
   if (1 [&] 1,2
+  { }          // expected-error {{expected expression}}
+
+  if ('a' [&] fn1(), fn2())
+  ;
+}
+
+// none-of operator.
+void test4() {
+
+  if (1 [!] 1,2,3)
+  ;
+
+  if (1 none_of 1,2,3)
+  ;
+
+  if (1 [!] 1) // expected-error {{expected ','}}
+  ;
+
+  if (1 [!] 1& // expected-error {{expected ')'}}
+  ;            // expected-error {{expected expression}}
+
+  if (1 [!] 1,2
   { }          // expected-error {{expected expression}}
 
   if ('a' [&] fn1(), fn2())

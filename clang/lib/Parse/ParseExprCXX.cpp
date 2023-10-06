@@ -4218,9 +4218,38 @@ ExprResult Parser::ParseAllOfManifoldExpression(ExprResult LHS,
   return CachedExpr;
 }
 
+ExprResult Parser::ParseNoneOfManifoldExpression(ExprResult LHS,
+                                                 const Token &OpToken,
+                                                 SmallVector<ExprResult, 2> &exprResults) {
+  assert(getLangOpts().CPlusPlus11 && getLangOpts().ManifoldExpressions
+         && OpToken.is(tok::manifoldnoneof)
+         && "Not at the start of a none-of manifold expression.");
+
+  ExprResult BinOp, CachedExpr, exprResult;
+  for (size_t index = 0; index != exprResults.size(); index++) {
+    exprResult = exprResults[index];
+
+    BinOp = Actions.ActOnBinOp(getCurScope(), OpToken.getLocation(),
+                               tok::exclaimequal, LHS.get(), exprResult.get());
+    if (BinOp.isInvalid())
+      return ExprError();
+
+    if (index > 0) {
+      BinOp = Actions.ActOnBinOp(getCurScope(), OpToken.getLocation(),
+                              tok::ampamp, CachedExpr.get(), BinOp.get());
+      if (BinOp.isInvalid())
+        return ExprError();
+    }
+
+    CachedExpr = BinOp;
+  }
+
+  return CachedExpr;
+}
+
 ExprResult Parser::ParseManifoldExpression(ExprResult LHS, const Token &OpToken) {
   assert(getLangOpts().CPlusPlus11 && getLangOpts().ManifoldExpressions
-         && OpToken.isOneOf(tok::manifoldoneof, tok::manifoldanyof)
+         && OpToken.isOneOf(tok::manifoldoneof, tok::manifoldanyof, tok::manifoldallof, tok::manifoldnoneof)
          && "Not at the start of a possible manifold expression.");
 
   SmallVector<ExprResult, 2>  exprResults;
@@ -4261,6 +4290,8 @@ ExprResult Parser::ParseManifoldExpression(ExprResult LHS, const Token &OpToken)
     return ParseAnyOfManifoldExpression(LHS, OpToken, exprResults);
   else if (OpToken.is(tok::manifoldallof))
     return ParseAllOfManifoldExpression(LHS, OpToken, exprResults);
+  else if (OpToken.is(tok::manifoldnoneof))
+    return ParseNoneOfManifoldExpression(LHS, OpToken, exprResults);
   else
     return ExprError();
 }
