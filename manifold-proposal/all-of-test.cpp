@@ -12,8 +12,12 @@ int main(int argc, char** argv)
   }
 
   char var = *argv[1];
+
+  auto fn = [&]() {
+
+  };
   
-  if (var [&] fn1(), fn2())
+  if (var [*] fn1(), fn2())
     printf("%c is all-of [fn1(), fn2()]\n", var);
   else
     printf("%c is NOT all-of [fn1(), fn2()]\n", var);

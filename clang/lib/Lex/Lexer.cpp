@@ -3945,7 +3945,7 @@ LexStart:
         case '|': // [|]
           Kind = tok::manifoldanyof;
           break;
-        case '&': // [&]
+        case '*': // [*]
           Kind = tok::manifoldallof;
           break;
         case '!': // [!]
