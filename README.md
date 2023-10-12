@@ -1,39 +1,68 @@
-# The LLVM Compiler Infrastructure
+# [RFC] C++ Manifold Operator
 
-Welcome to the LLVM project!
+This repository contains the source code for the LLVM compiler infrastructure
+with a single ([PoC](https://en.wikipedia.org/wiki/Proof_of_concept)) modification to introduce four new C++ operators.
 
-This repository contains the source code for LLVM, a toolkit for the
-construction of highly optimized compilers, optimizers, and run-time
-environments.
+| Operator  |        Syntax      |                       Equivalence                        | Alternative Token |
+| :-------: | :----------------: | :------------------------------------------------------: | :---------------: |
+|  one-of   | if (var [^] 1,2) ; | if ((var == 1 && var != 2) \|\| (var != 1 && var == 2)) ;|       one_of      |
+|  all-of   | if (var [*] 1,2) ; | if (var == 1 && var == 2) ;                              |       all_of      |
+|  any-of   | if (var [\|] 1,2) ;| if (var == 1 \|\| var == 2) ;                            |       any_of      |
+|  none-of  | if (var [!] 1,2) ; | if (var != 1 && var != 2) ;                              |       none_of     |
 
-The LLVM project has multiple components. The core of the project is
-itself called "LLVM". This contains all of the tools, libraries, and header
-files needed to process intermediate representations and convert them into
-object files. Tools include an assembler, disassembler, bitcode analyzer, and
-bitcode optimizer.
+## Example
 
-C-like languages use the [Clang](http://clang.llvm.org/) frontend. This
-component compiles C, C++, Objective-C, and Objective-C++ code into LLVM bitcode
--- and from there into object files, using LLVM.
+A number of examples can be found under the [manifold-operator](manifold-operator) folder.
 
-Other components include:
-the [libc++ C++ standard library](https://libcxx.llvm.org),
-the [LLD linker](https://lld.llvm.org), and more.
+``` cpp
+#include <cstdlib>
 
-## Getting the Source Code and Building LLVM
+int main(void)
+{
+  int var = 1;
 
-Consult the
-[Getting Started with LLVM](https://llvm.org/docs/GettingStarted.html#getting-the-source-code-and-building-llvm)
-page for information on building and running LLVM.
+  if (var [^] 1,2) // one-of
+    return EXIT_SUCCESS;
 
-For information on how to contribute to the LLVM project, please take a look at
-the [Contributing to LLVM](https://llvm.org/docs/Contributing.html) guide.
+  return EXIT_FAILURE;
+}
+```
 
-## Getting in touch
+## Running
+``` sh
+$ cd llvm-project
+$ build/bin/clang++ -fmanifold-expressions example.cpp -o example
+```
 
-Join the [LLVM Discourse forums](https://discourse.llvm.org/), [Discord
-chat](https://discord.gg/xS7Z362), or #llvm IRC channel on
-[OFTC](https://oftc.net/).
+## Building
 
-The LLVM project has adopted a [code of conduct](https://llvm.org/docs/CodeOfConduct.html) for
-participants to all modes of communication within the project.
+``` sh
+$ git clone https://github.com/llvm/llvm-project
+Cloning into 'llvm-project'...
+...
+Receiving objects: 100% (5588761/5588761), 1.89 GiB | 4.35 MiB/s, done.
+
+$ cd llvm-project
+
+$ mkdir build && cd build/
+
+$ cmake -DLLVM_ENABLE_PROJECTS=clang -DCMAKE_BUILD_TYPE=Debug -G "Unix Makefiles" ../llvm
+...
+
+$ make
+...
+```
+
+## Testing
+
+``` sh
+$ cd llvm-project
+
+$ build/bin/clang++ -fsyntax-only -Xclang -verify clang/test/Parser/manifold.cpp
+
+$ make check-all
+```
+
+## Documentation
+
+An article detailing the implementation can be found on [LinkedIn](www.linkedin.com/in/ben-crowhurst-95167464).

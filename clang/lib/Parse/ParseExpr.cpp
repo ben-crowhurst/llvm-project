@@ -111,7 +111,7 @@ using namespace clang;
 /// [GNU]   logical-OR-expression '?' ':' conditional-expression
 ///         logical-OR-expression '[^]' relational-expression ',' ...[opt]
 ///         logical-OR-expression '[|]' relational-expression ',' ...[opt]
-///         logical-OR-expression '[&]' relational-expression ',' ...[opt]
+///         logical-OR-expression '[*]' relational-expression ',' ...[opt]
 ///         logical-OR-expression '[!]' relational-expression ',' ...[opt]
 /// [C++] the third operand is an assignment-expression
 ///
