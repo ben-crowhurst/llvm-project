@@ -12,7 +12,7 @@ with a single ([PoC](https://en.wikipedia.org/wiki/Proof_of_concept)) modificati
 
 ## Example
 
-A number of examples can be found under the [manifold-operator](/manifold-operator) folder.
+A number of examples can be found under the [manifold-operator](/manifold-proposal) folder.
 
 ``` cpp
 #include <cstdlib>
