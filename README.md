@@ -12,7 +12,7 @@ with a single ([PoC](https://en.wikipedia.org/wiki/Proof_of_concept)) modificati
 
 ## Example
 
-A number of examples can be found under the [manifold-operator](manifold-operator) folder.
+A number of examples can be found under the [manifold-operator](/manifold-operator) folder.
 
 ``` cpp
 #include <cstdlib>
@@ -65,4 +65,4 @@ $ make check-all
 
 ## Documentation
 
-An article detailing the implementation can be found on [LinkedIn](www.linkedin.com/in/ben-crowhurst-95167464).
+An article detailing the implementation can be found on [LinkedIn](https://www.linkedin.com/in/ben-crowhurst-95167464).
